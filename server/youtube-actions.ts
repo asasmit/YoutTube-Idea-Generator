@@ -26,12 +26,25 @@ async function getChannelId(channelName: string): Promise<string | null> {
       maxResults: 1,
     });
 
-    return response.data.items?.[0]?.id?.channelId || null;
-  } catch (error) {
-    console.error("Error fetching channel ID:", error);
+    const channelId = response.data.items?.[0]?.id?.channelId ?? null;
+
+    if (channelId) {
+      console.log(`Channel ID for "${channelName}": ${channelId}`);
+    } else {
+      console.log(`No channel found for "${channelName}".`);
+    }
+
+    return channelId;
+  } catch (error: unknown) {
+    if (error instanceof Error) {
+      console.error("Error fetching channel ID:", error.message);
+    } else {
+      console.error("Unexpected error:", error);
+    }
     return null;
   }
 }
+
 
 async function fetchAllVideosForChannel(channelId: string): Promise<string[]> {
   let allVideoIds: string[] = [];
@@ -70,7 +83,7 @@ async function fetchVideoDetails(videoIds: string[]): Promise<YouTubeVideo[]> {
   try {
     const response = await youtube.videos.list({
       part: ["snippet", "statistics"],
-      id: videoIds,
+      id: videoIds.slice(0,50),
     });
 
     return (
@@ -80,6 +93,7 @@ async function fetchVideoDetails(videoIds: string[]): Promise<YouTubeVideo[]> {
         statistics: item.statistics!,
       })) || []
     );
+
   } catch (error) {
     console.error("Error fetching video details:", error);
     return [];
