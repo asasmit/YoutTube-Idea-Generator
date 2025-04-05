@@ -52,7 +52,7 @@ export async function kickoffIdeaGeneration(): Promise<void> {
       and(eq(VideoComments.userId, userId), eq(VideoComments.isUsed, false))
     )
     .orderBy(VideoComments.createdAt)
-    .limit(50);
+    .limit(1);
 
   console.log("Fetched comments:", comments);
 
